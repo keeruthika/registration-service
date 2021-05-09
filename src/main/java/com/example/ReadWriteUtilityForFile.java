@@ -6,7 +6,9 @@ import com.google.gson.stream.JsonReader;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author Crunchify.com
@@ -17,12 +19,13 @@ import java.util.List;
 @Component
 public class ReadWriteUtilityForFile {
 
-    private static String crunchify_file_location = "C:/Users/Home/Desktop/New folder/crunchify.txt";
+    private static String crunchify_file_location = "C:/Users/Home/Desktop/New folder/registration.txt";
     private static Gson gson = new Gson();
 
 
     // Save to file Utility
     public static void crunchifyWriteToFile(String myData) {
+        StringBuilder sb = new StringBuilder();
         File crunchifyFile = new File(crunchify_file_location);
         if (!crunchifyFile.exists()) {
             try {
@@ -31,30 +34,44 @@ public class ReadWriteUtilityForFile {
                     directory.mkdirs();
                 }
                 crunchifyFile.createNewFile();
+                String intial = "[]";
+                FileWriter myWriter = new FileWriter(crunchify_file_location);
+                myWriter.write(intial);
+                myWriter.close();
             } catch (IOException e) {
                 log("Excepton Occured: " + e.toString());
             }
         }
 
         try {
-            // Convenience class for writing character files
-            FileWriter crunchifyWriter;
-            crunchifyWriter = new FileWriter(crunchifyFile.getAbsoluteFile(), true);
+            File myObj = new File(crunchify_file_location);
+            Scanner myReader = new Scanner(myObj);
+            String data="";
+            while (myReader.hasNextLine()) {
+                 data = removeLastChar(myReader.nextLine());
+            }
+            myReader.close();
+            sb.append(data).append(",").append(myData).append("]");
+            String finalString = sb.toString().replace("[,","[");
+            FileWriter myWriter = new FileWriter(crunchify_file_location);
+            myWriter.write(finalString);
+            myWriter.close();
 
-            // Writes text to a character-output stream
-            BufferedWriter bufferWriter = new BufferedWriter(crunchifyWriter);
-            bufferWriter.write(myData.toString());
-            bufferWriter.close();
-
-            log("Company data saved at file location: " + crunchify_file_location + " Data: " + myData + "\n");
         } catch (IOException e) {
-            log("Hmm.. Got an error while saving Company data to file " + e.toString());
         }
+    }
+
+    public static String removeLastChar(String str) {
+        return removeLastChars(str, 1);
+    }
+
+    public static String removeLastChars(String str, int chars) {
+        return str.substring(0, str.length() - chars);
     }
 
     // Read From File Utility
     public List<RegistrationDTO> crunchifyReadFromFile() {
-        List<RegistrationDTO> registrationDTOs = null;
+        List<RegistrationDTO> registrationDTOs = new ArrayList<>();
         File crunchifyFile = new File(crunchify_file_location);
         if (!crunchifyFile.exists())
             log("File doesn't exist");
@@ -62,13 +79,14 @@ public class ReadWriteUtilityForFile {
         InputStreamReader isReader;
         try {
             isReader = new InputStreamReader(new FileInputStream(crunchifyFile), "UTF-8");
-
             JsonReader myReader = new JsonReader(isReader);
-            RegistrationDTO company = gson.fromJson(myReader, RegistrationDTO.class);
-
-            registrationDTOs = gson.fromJson(myReader, RegistrationDTO.class);
-
-
+            myReader.beginArray();
+            while (myReader.hasNext()) {
+                RegistrationDTO obj = (new Gson()).fromJson(myReader, RegistrationDTO.class);
+                registrationDTOs.add(obj);
+            }
+            myReader.endArray();
+            myReader.close();
         } catch (Exception e) {
             log("error load cache from file " + e.toString());
         }
