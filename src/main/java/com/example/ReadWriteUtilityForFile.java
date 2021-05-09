@@ -1,64 +1,25 @@
 package com.example;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
+import com.example.dto.RegistrationDTO;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.util.List;
+
 /**
  * @author Crunchify.com
  * Best and simple Production ready utility to save/load
- *         (read/write) data from/to file
+ * (read/write) data from/to file
  */
 
 @Component
 public class ReadWriteUtilityForFile {
 
-    private static String crunchify_file_location = "/Users/appshah/Documents/crunchify.txt";
+    private static String crunchify_file_location = "C:/Users/Home/Desktop/New folder/crunchify.txt";
     private static Gson gson = new Gson();
 
-    // CrunchifyComapny Class with two fields
-    // - Employees
-    // - CompanyName
-    private static class CrunchifyCompany {
-        private int employees;
-        private String companyName;
-
-        public int getEmployees() {
-            return employees;
-        }
-
-        public void setEmployees(int employees) {
-            this.employees = employees;
-        }
-
-        public String getCompanyName() {
-            return companyName;
-        }
-
-        public void setCompanyName(String companyName) {
-            this.companyName = companyName;
-        }
-
-    }
-
-    // Main Method
-    public static void main(String[] args) {
-        CrunchifyCompany crunchify = new CrunchifyCompany();
-        crunchify.setCompanyName("Crunchify.com");
-        crunchify.setEmployees(4);
-
-        // Save data to file
-        crunchifyWriteToFile(gson.toJson(crunchify));
-
-        // Retrieve data from file
-        crunchifyReadFromFile();
-    }
 
     // Save to file Utility
     public static void crunchifyWriteToFile(String myData) {
@@ -92,7 +53,8 @@ public class ReadWriteUtilityForFile {
     }
 
     // Read From File Utility
-    public static void crunchifyReadFromFile() {
+    public List<RegistrationDTO> crunchifyReadFromFile() {
+        List<RegistrationDTO> registrationDTOs = null;
         File crunchifyFile = new File(crunchify_file_location);
         if (!crunchifyFile.exists())
             log("File doesn't exist");
@@ -102,17 +64,16 @@ public class ReadWriteUtilityForFile {
             isReader = new InputStreamReader(new FileInputStream(crunchifyFile), "UTF-8");
 
             JsonReader myReader = new JsonReader(isReader);
-            CrunchifyCompany company = gson.fromJson(myReader, CrunchifyCompany.class);
+            RegistrationDTO company = gson.fromJson(myReader, RegistrationDTO.class);
 
-            log("Company Name: " + company.getCompanyName());
-            Integer employee = company.getEmployees();
-            log("# of Employees: " + employee.toString());
+            registrationDTOs = gson.fromJson(myReader, RegistrationDTO.class);
+
 
         } catch (Exception e) {
             log("error load cache from file " + e.toString());
         }
+        return registrationDTOs;
 
-        log("\nComapny Data loaded successfully from file " + crunchify_file_location);
 
     }
 
