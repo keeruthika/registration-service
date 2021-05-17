@@ -6,6 +6,8 @@ import com.google.gson.stream.JsonReader;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -93,6 +95,10 @@ public class ReadWriteUtilityForFile {
         return registrationDTOs;
 
 
+    }
+
+    public static void deleteAllRegisteredUser() throws IOException {
+        Files.delete(Paths.get(crunchify_file_location));
     }
 
     private static void log(String string) {
