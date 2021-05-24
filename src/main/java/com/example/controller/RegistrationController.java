@@ -32,4 +32,18 @@ public class RegistrationController {
         return "deletion success";
     }
 
+    @GetMapping(path = "/getRegisteredUserByUserName/{userName}")
+    public RegistrationDTO getRegisteredUserByUserName(@PathVariable("userName") String userName) throws Exception {
+        RegistrationDTO value = null;
+        List<RegistrationDTO> list = readWriteUtilityForFile.crunchifyReadFromFile();
+        for(RegistrationDTO test:list){
+            if(test.getUserName().equalsIgnoreCase(userName)){
+                value = test;
+                break;
+            }
+        }
+        return value;
+    }
+
+
 }
